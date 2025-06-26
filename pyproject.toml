@@ -1,0 +1,15 @@
+[project]
+name = "air-carriers-international-market-etl"
+version = "1.0.0"
+description = "ETL pipelines to process Air Carriers International Market data to input into a Data Warehouse."
+authors = [
+  {name = "Lucas Laredo", email = "devlucaslaredo@gmail.com"}
+]
+maintainers = [
+  {name = "Lucas Laredo", email = "devlucaslaredo@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "kedro>=0.19.14",
+]
