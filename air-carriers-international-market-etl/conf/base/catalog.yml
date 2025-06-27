@@ -75,7 +75,7 @@ world_area_codes:
   type: pandas.CSVDataset
   filepath: data/01_raw/L_WORLD_AREA_CODES.csv
 
-## market data tables
+## transacional tables
 market_data_2018:
   type: pandas.CSVDataset
   filepath: data/01_raw/T_T100I_MARKET_US_CARRIER_ONLY_2018.csv
