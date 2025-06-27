@@ -4,16 +4,12 @@ logger = __import__("kedro").get_logger(__name__)
 
 
 def create_flight_company_dimension(
-    airline_id: pd.DataFrame,
-    carrier_history: pd.DataFrame,
-    carrier_group_new: pd.DataFrame,
+    market_data_2024: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combines all data to create a flight company dimension table.
 
     Args:
-        airline_id: Preprocessed data for airline IDs.
-        carrier_history: Preprocessed data for carrier history.
-        carrier_group_new: Preprocessed data for carrier group new.
+        market_data_2024: Preprocessed data for market data 2024.
     Returns:
         Flight company dimension table.
 
@@ -32,14 +28,12 @@ def create_flight_company_dimension(
 
 
 def create_airport_dimension(
-    airport_id: pd.DataFrame,
-    city_market_id: pd.DataFrame,
+    market_data_2024: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combines all data to create an airport dimension table.
 
     Args:
-        airport_id: Preprocessed data for airport IDs.
-        city_market_id: Preprocessed data for city market IDs.
+        market_data_2024: Preprocessed data for market data 2024.
     Returns:
         Airport dimension table.
 
@@ -63,12 +57,12 @@ def create_airport_dimension(
 
 
 def create_distance_dimension(
-    distance_group_500: pd.DataFrame,
+    market_data_2024: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combines all data to create a distance dimension table.
 
     Args:
-        distance_group_500: Preprocessed data for distance groups.
+        market_data_2024: Preprocessed data for market data 2024..
     Returns:
         Distance dimension table.
 
@@ -125,48 +119,37 @@ def create_operator_dimension(
 
 
 def create_company_dimension(
-    airport_id: pd.DataFrame,
-    carrier_history: pd.DataFrame,
-    operator_dimension: pd.DataFrame,
+    market_data_2024: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combines all data to create a company dimension table.
 
     Args:
-        carrier_group_new: Preprocessed data for carrier group new.
-        airport_id: Preprocessed data for airport IDs.
-        carrier_history: Preprocessed data for carrier history.
+        market_data_2024: Preprocessed data for market data 2024.
     Returns:
         Company dimension table.
 
     """
     logger.info("Creating company dimension table")
 
-    carrier_dimension = pd.merge(
-        airport_id,
-        carrier_history,
-        left_on="Code",
-        right_on="AirlineID",
-        how="left",
-    )
+    company_dimension = pd.DataFrame()
 
-    carrier_dimension = pd.merge(
-        carrier_dimension,
-        operator_dimension,
-        left_on="CarrierGroup",
-        right_on="id_carrier_group",
-        how="left",
-    )
+    # Removing 9k from the CARRIER column
+    m1 = market_data_2024["CARRIER"].str.contains("9K")
 
-    carrier_dimension = (
-        carrier_dimension[["Code", "Description", "id_operadora_sk"]]
-        .rename(
-            columns={"Code": "id_airline", "Description": "nm_companhia"}, inplace=True
-        )
-        .insert(0, "id_companhia_sk", range(1, len(carrier_dimension) + 1))
-    )
+    company_dimension = market_data_2024.loc[
+        ~m1,
+        [
+            "AIRLINE_ID",
+            "UNIQUE_CARRIER",
+            "UNIQUE_CARRIER_NAME",
+            "UNIQUE_CARRIER_ENTITY",
+            "CARRIER",
+            "CARRIER_NAME",
+            "REGION",
+        ],
+    ].drop_duplicates()
+    company_dimension["id_companhia"] = company_dimension.reset_index().index + 1
 
-    carrier_dimension["id_operadora_sk"] = (
-        carrier_dimension["id_operadora_sk"].fillna(0).astype(int)
-    )  # Usando 0 para "Não especificado"
+    company_dimension.columns
 
-    return carrier_dimension
+    return company_dimension

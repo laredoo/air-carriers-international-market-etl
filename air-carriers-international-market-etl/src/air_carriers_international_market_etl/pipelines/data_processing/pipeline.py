@@ -14,19 +14,19 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=create_flight_company_dimension,
-                inputs=["airline", "carrier_history", "carrier_group_new"],
+                inputs=["market_data_2024"],
                 outputs="flight_company_dimension",
                 name="create_flight_company_dimension_node",
             ),
             node(
                 func=create_airport_dimension,
-                inputs=["airport_id", "city_market_id"],
+                inputs=["market_data_2024"],
                 outputs="airport_dimension",
                 name="create_airport_dimension_node",
             ),
             node(
                 func=create_distance_dimension,
-                inputs=["distance_group_500"],
+                inputs=["market_data_2024"],
                 outputs="distance_dimension",
                 name="create_distance_dimension_node",
             ),
@@ -38,7 +38,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=create_company_dimension,
-                inputs=["airport_id", "carrier_history", "operator_dimension"],
+                inputs=["market_data_2024"],
                 outputs="company_dimension",
                 name="create_company_dimension_node",
             ),
