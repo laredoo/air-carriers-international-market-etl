@@ -5,6 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 requires-python = ">=3.9"
 name = "air_carriers_international_market_etl"
+description = "ETL pipelines to process Air Carriers International Market data to input into a Data Warehouse."
+authors = [
+  {name = "Lucas Laredo", email = "devlucaslaredo@gmail.com"}
+]
+maintainers = [
+  {name = "Lucas Laredo", email = "devlucaslaredo@gmail.com"}
+]
 readme = "README.md"
 dynamic = [ "version",]
 dependencies = [ "ipython>=8.10", "jupyterlab>=3.0", "notebook", "kedro[jupyter]~=0.19.14", "kedro-datasets[pandas-csvdataset, pandas-exceldataset, pandas-parquetdataset, plotly-plotlydataset, plotly-jsondataset, matplotlib-matplotlibwriter]>=3.0", "kedro-viz>=6.7.0", "scikit-learn~=1.5.1", "seaborn~=0.12.1",]
