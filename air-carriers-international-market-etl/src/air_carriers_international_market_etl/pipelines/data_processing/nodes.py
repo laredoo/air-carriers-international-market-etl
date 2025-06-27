@@ -109,12 +109,18 @@ def create_operator_dimension(
     operator_dimension["CARRIER_NAME"] = market_data_2024.loc[
         ~m2, "CARRIER_NAME"
     ].unique()
-    operator_dimension = pd.merge(
-        operator_dimension,
-        market_data_2024[["CARRIER", "CARRIER_GROUP", "CARRIER_GROUP_NEW"]],
-        on="CARRIER",
-        how="left",
-    ).drop_duplicates()
+    operator_dimension = (
+        pd.merge(
+            operator_dimension,
+            market_data_2024[["CARRIER", "CARRIER_GROUP", "CARRIER_GROUP_NEW"]],
+            on="CARRIER",
+            how="left",
+        )
+        .drop_duplicates()
+        .reset_index(drop=True)
+    )
+
+    operator_dimension["id_operadora"] = operator_dimension.index + 1
 
     logger.info("Operator dimension table created successfully")
 
