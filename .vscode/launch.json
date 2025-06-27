@@ -10,6 +10,7 @@
             "request": "launch",
             "module": "kedro",
             "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/air-carriers-international-market-etl",
             "args": [
                 "run",
                 "--pipeline",
