@@ -1,7 +1,5 @@
 import pandas as pd
 
-logger = __import__("kedro").get_logger(__name__)
-
 
 def create_class_dimension(
     market_data_2024: pd.DataFrame,
@@ -15,8 +13,6 @@ def create_class_dimension(
         Flight company dimension table.
 
     """
-    logger.info("Creating flight company dimension table")
-
     class_dimension = pd.DataFrame()
 
     class_dimension = market_data_2024[["CLASS"]].drop_duplicates()
@@ -43,8 +39,6 @@ def create_airport_dimension(
         Airport dimension table.
 
     """
-    logger.info("Creating airport dimension table")
-
     airport_dimension = pd.DataFrame()
 
     origin_cols = {
@@ -90,8 +84,6 @@ def create_distance_dimension(
         Distance dimension table.
 
     """
-    logger.info("Creating distance dimension table")
-
     distance_dimension = pd.DataFrame()
 
     # not implemented Faixa_Descricao
@@ -112,8 +104,6 @@ def create_time_dimension(
         Time dimension table.
 
     """
-    logger.info("Creating time dimension table")
-
     time_dimension = pd.DataFrame()
 
     time_dimension = market_data_2024[["YEAR", "QUARTER", "MONTH"]].drop_duplicates()
@@ -133,8 +123,6 @@ def create_operator_dimension(
         Operator dimension table.
 
     """
-    logger.info("Creating operator dimension table")
-
     operator_dimension = pd.DataFrame()
 
     # Removing 9k from the CARRIER column
@@ -169,8 +157,6 @@ def create_company_dimension(
         Company dimension table.
 
     """
-    logger.info("Creating company dimension table")
-
     company_dimension = pd.DataFrame()
 
     # Removing 9k from the CARRIER column
@@ -188,6 +174,7 @@ def create_company_dimension(
             "REGION",
         ],
     ].drop_duplicates()
+
     company_dimension["id_companhia"] = company_dimension.reset_index().index + 1
 
     company_dimension.columns
