@@ -40,18 +40,36 @@ def create_airport_dimension(
     """
     logger.info("Creating airport dimension table")
 
-    airport_dimension = airport_id.rename(
-        columns={"Code": "id_airport", "Description": "ds_aeroporto_cidade_pais"},
-        inplace=True,
-    )
+    airport_dimension = pd.DataFrame()
 
-    airport_dimension["nm_cidade"] = airport_dimension[
-        "ds_aeroporto_cidade_pais"
-    ].apply(lambda x: x.split(":")[0])
+    origin_cols = {
+        "ORIGIN_AIRPORT_ID": "AIRPORT_ID",
+        "ORIGIN_AIRPORT_SEQ_ID": "AIRPORT_SEQ_ID",
+        "ORIGIN_CITY_MARKET_ID": "CITY_MARKET_ID",
+        "ORIGIN_CITY_NAME": "CITY_NAME",
+        "ORIGIN_COUNTRY": "COUNTRY",
+        "ORIGIN_COUNTRY_NAME": "COUNTRY_NAME",
+        "ORIGIN_WAC": "WAC",
+    }
+    dest_cols = {
+        "DEST_AIRPORT_ID": "AIRPORT_ID",
+        "DEST_AIRPORT_SEQ_ID": "AIRPORT_SEQ_ID",
+        "DEST_CITY_MARKET_ID": "CITY_MARKET_ID",
+        "DEST_CITY_NAME": "CITY_NAME",
+        "DEST_COUNTRY": "COUNTRY",
+        "DEST_COUNTRY_NAME": "COUNTRY_NAME",
+        "DEST_WAC": "WAC",
+    }
 
-    airport_dimension = airport_dimension.insert(
-        0, "id_aeroporto_sk", range(1, len(airport_dimension) + 1)
+    origin_df = market_data_2024[list(origin_cols.keys())].rename(columns=origin_cols)
+    dest_df = market_data_2024[list(dest_cols.keys())].rename(columns=dest_cols)
+
+    airport_dimension = (
+        pd.concat([origin_df, dest_df], ignore_index=True)
+        .drop_duplicates()
+        .reset_index(drop=True)
     )
+    airport_dimension
 
     return airport_dimension
 
