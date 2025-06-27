@@ -104,3 +104,24 @@ market_data_2024:
   type: pandas.CSVDataset
   filepath: data/01_raw/T_T100I_MARKET_US_CARRIER_ONLY_2024.csv
 
+# intermediate
+
+airport_dimension:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/airport_dimension.parquet
+
+carrier_dimension:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/carrier_dimension.parquet
+
+distance_dimension:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/distance_dimension.parquet
+
+flight_company_dimension:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/flight_company_dimension.parquet
+
+operator_dimension:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/operator_dimension.parquet
