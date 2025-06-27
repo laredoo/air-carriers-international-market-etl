@@ -110,9 +110,9 @@ airport_dimension:
   type: pandas.ParquetDataset
   filepath: data/02_intermediate/airport_dimension.parquet
 
-carrier_dimension:
+company_dimension:
   type: pandas.ParquetDataset
-  filepath: data/02_intermediate/carrier_dimension.parquet
+  filepath: data/02_intermediate/company_dimension.parquet
 
 distance_dimension:
   type: pandas.ParquetDataset

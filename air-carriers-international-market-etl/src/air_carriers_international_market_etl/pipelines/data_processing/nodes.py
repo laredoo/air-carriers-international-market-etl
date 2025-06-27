@@ -76,8 +76,7 @@ def create_distance_dimension(
     logger.info("Creating distance dimension table")
 
     distance_dimension = distance_group_500.rename(
-        columns={"Code": "id_distance_group", "Description": "ds_faixa_distancia"},
-        inplace=True,
+        columns={"id_distance_group": "Code", "ds_faixa_distancia": "Description"},
     )
 
     distance_dimension = distance_dimension.insert(
@@ -88,56 +87,83 @@ def create_distance_dimension(
 
 
 def create_operator_dimension(
-    carrier_group_new: pd.DataFrame,
-    airport_id: pd.DataFrame,
-    carrier_history: pd.DataFrame,
+    market_data_2024: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combines all data to create a operator dimension table.
 
     Args:
-        carrier_group_new: Preprocessed data for carrier group new.
-        airport_id: Preprocessed data for airport IDs.
-        carrier_history: Preprocessed data for carrier history.
+        market_data_2024: Preprocessed data for market data 2024.
     Returns:
         Operator dimension table.
 
     """
     logger.info("Creating operator dimension table")
 
-    operator_dimension = carrier_group_new.rename(
-        columns={"Code": "id_carrier_group", "Description": "nm_carrier_group"},
-        inplace=True,
-    )
+    operator_dimension = pd.DataFrame()
 
-    operator_dimension = operator_dimension.insert(
-        0, "id_operadora_sk", range(1, len(operator_dimension) + 1)
-    )
+    # Removing 9k from the CARRIER column
+    m1 = market_data_2024["CARRIER"].str.contains("9K")
+    m2 = market_data_2024["CARRIER_NAME"].str.contains("Cape Air")
+
+    operator_dimension["CARRIER"] = market_data_2024.loc[~m1, "CARRIER"].unique()
+    operator_dimension["CARRIER_NAME"] = market_data_2024.loc[
+        ~m2, "CARRIER_NAME"
+    ].unique()
+    operator_dimension = pd.merge(
+        operator_dimension,
+        market_data_2024[["CARRIER", "CARRIER_GROUP", "CARRIER_GROUP_NEW"]],
+        on="CARRIER",
+        how="left",
+    ).drop_duplicates()
+
+    logger.info("Operator dimension table created successfully")
 
     return operator_dimension
 
 
-def create_carrier_dimension(
+def create_company_dimension(
     airport_id: pd.DataFrame,
     carrier_history: pd.DataFrame,
+    operator_dimension: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Combines all data to create a carrier dimension table.
+    """Combines all data to create a company dimension table.
 
     Args:
         carrier_group_new: Preprocessed data for carrier group new.
         airport_id: Preprocessed data for airport IDs.
         carrier_history: Preprocessed data for carrier history.
     Returns:
-        Carrier dimension table.
+        Company dimension table.
 
     """
-    logger.info("Creating carrier dimension table")
+    logger.info("Creating company dimension table")
 
-    carrier_dimension = airport_id.rename(
-        columns={"Code": "id_airline", "Description": "nm_companhia"}, inplace=True
+    carrier_dimension = pd.merge(
+        airport_id,
+        carrier_history,
+        left_on="Code",
+        right_on="AirlineID",
+        how="left",
     )
 
-    carrier_dimension = carrier_dimension.insert(
-        0, "id_companhia_sk", range(1, len(carrier_dimension) + 1)
+    carrier_dimension = pd.merge(
+        carrier_dimension,
+        operator_dimension,
+        left_on="CarrierGroup",
+        right_on="id_carrier_group",
+        how="left",
     )
+
+    carrier_dimension = (
+        carrier_dimension[["Code", "Description", "id_operadora_sk"]]
+        .rename(
+            columns={"Code": "id_airline", "Description": "nm_companhia"}, inplace=True
+        )
+        .insert(0, "id_companhia_sk", range(1, len(carrier_dimension) + 1))
+    )
+
+    carrier_dimension["id_operadora_sk"] = (
+        carrier_dimension["id_operadora_sk"].fillna(0).astype(int)
+    )  # Usando 0 para "Não especificado"
 
     return carrier_dimension
