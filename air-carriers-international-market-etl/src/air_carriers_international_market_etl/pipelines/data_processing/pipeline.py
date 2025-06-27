@@ -6,6 +6,7 @@ from .nodes import (
     create_distance_dimension,
     create_flight_company_dimension,
     create_operator_dimension,
+    create_time_dimension,
 )
 
 
@@ -29,6 +30,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["market_data_2024"],
                 outputs="distance_dimension",
                 name="create_distance_dimension_node",
+            ),
+            node(
+                func=create_time_dimension,
+                inputs=["market_data_2024"],
+                outputs="time_dimension",
+                name="create_time_dimension_node",
             ),
             node(
                 func=create_operator_dimension,

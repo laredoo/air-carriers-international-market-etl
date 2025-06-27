@@ -69,7 +69,7 @@ def create_airport_dimension(
         .drop_duplicates()
         .reset_index(drop=True)
     )
-    airport_dimension
+    airport_dimension["id_aeroporto"] = airport_dimension.reset_index().index + 1
 
     return airport_dimension
 
@@ -96,6 +96,27 @@ def create_distance_dimension(
     )
 
     return distance_dimension
+
+
+def create_time_dimension(
+    market_data_2024: pd.DataFrame,
+) -> pd.DataFrame:
+    """Combines all data to create a time dimension table.
+
+    Args:
+        market_data_2024: Preprocessed data for market data 2024..
+    Returns:
+        Time dimension table.
+
+    """
+    logger.info("Creating time dimension table")
+
+    time_dimension = pd.DataFrame()
+
+    time_dimension = market_data_2024[["YEAR", "QUARTER", "MONTH"]].drop_duplicates()
+    time_dimension["id_tempo"] = time_dimension.reset_index().index + 1
+
+    return time_dimension
 
 
 def create_operator_dimension(

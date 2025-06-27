@@ -107,21 +107,25 @@ market_data_2024:
 # intermediate
 
 airport_dimension:
-  type: pandas.ParquetDataset
-  filepath: data/02_intermediate/airport_dimension.parquet
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/airport_dimension.csv
 
 company_dimension:
-  type: pandas.ParquetDataset
-  filepath: data/02_intermediate/company_dimension.parquet
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/company_dimension.csv
 
 distance_dimension:
-  type: pandas.ParquetDataset
-  filepath: data/02_intermediate/distance_dimension.parquet
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/distance_dimension.csv
 
 flight_company_dimension:
-  type: pandas.ParquetDataset
-  filepath: data/02_intermediate/flight_company_dimension.parquet
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/flight_company_dimension.csv
 
 operator_dimension:
-  type: pandas.ParquetDataset
-  filepath: data/02_intermediate/operator_dimension.parquet
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/operator_dimension.csv
+
+time_dimension:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/time_dimension.csv
