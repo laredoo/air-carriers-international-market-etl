@@ -110,6 +110,10 @@ airport_dimension:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/airport_dimension.csv
 
+class_dimension:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/class_dimension.csv
+
 company_dimension:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/company_dimension.csv
