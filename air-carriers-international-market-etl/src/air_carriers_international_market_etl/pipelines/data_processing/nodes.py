@@ -180,3 +180,114 @@ def create_company_dimension(
     company_dimension.columns
 
     return company_dimension
+
+
+def create_fact_table(
+    market_data_2024: pd.DataFrame,
+    dim_tempo: pd.DataFrame,
+    dim_companhia: pd.DataFrame,
+    dim_aeroporto: pd.DataFrame,
+    dim_distancia: pd.DataFrame,
+    dim_classe: pd.DataFrame,
+    dim_operadora: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Cria a tabela de fatos 'Fato_Voos' a partir dos dados de mercado e das dimensões pré-construídas.
+
+    A função realiza a junção (merge) dos dados transacionais com cada uma das
+    dimensões para substituir as chaves de negócio pelas chaves substitutas (surrogate keys)
+    do Data Warehouse.
+
+    Args:
+        market_data_2024 (pd.DataFrame): DataFrame contendo os dados brutos de voos.
+        dim_tempo (pd.DataFrame): Tabela de dimensão de tempo.
+        dim_companhia (pd.DataFrame): Tabela de dimensão de companhia aérea.
+        dim_aeroporto (pd.DataFrame): Tabela de dimensão de aeroportos.
+        dim_distancia (pd.DataFrame): Tabela de dimensão de distância.
+        dim_classe (pd.DataFrame): Tabela de dimensão de classe de serviço.
+
+    Returns:
+        pd.DataFrame: A tabela de fatos 'Fato_Voos' finalizada.
+    """
+    fact_table = market_data_2024.copy()
+
+    # Merge com Dim_Tempo
+    fact_table = pd.merge(
+        fact_table, dim_tempo, on=["YEAR", "QUARTER", "MONTH"], how="left"
+    )
+
+    # Merge com Dim_Companhia
+    company_cols = [
+        "AIRLINE_ID",
+        "UNIQUE_CARRIER",
+        "UNIQUE_CARRIER_NAME",
+        "UNIQUE_CARRIER_ENTITY",
+        "CARRIER",
+        "CARRIER_NAME",
+        "REGION",
+    ]
+    fact_table = pd.merge(fact_table, dim_companhia, on=company_cols, how="left")
+
+    # Merge com Dim_Aeroporto para Origem
+    origin_cols_map = {
+        "ORIGIN_AIRPORT_ID": "AIRPORT_ID",
+        "ORIGIN_AIRPORT_SEQ_ID": "AIRPORT_SEQ_ID",
+        "ORIGIN_CITY_MARKET_ID": "CITY_MARKET_ID",
+        "ORIGIN_CITY_NAME": "CITY_NAME",
+        "ORIGIN_COUNTRY": "COUNTRY",
+        "ORIGIN_COUNTRY_NAME": "COUNTRY_NAME",
+        "ORIGIN_WAC": "WAC",
+    }
+    fact_table_origin_merged = pd.merge(
+        fact_table,
+        dim_aeroporto,
+        left_on=list(origin_cols_map.keys()),
+        right_on=list(origin_cols_map.values()),
+        how="left",
+    ).rename(columns={"id_aeroporto": "id_origem"})
+
+    # Merge com Dim_Aeroporto para Destino
+    dest_cols_map = {
+        "DEST_AIRPORT_ID": "AIRPORT_ID",
+        "DEST_AIRPORT_SEQ_ID": "AIRPORT_SEQ_ID",
+        "DEST_CITY_MARKET_ID": "CITY_MARKET_ID",
+        "DEST_CITY_NAME": "CITY_NAME",
+        "DEST_COUNTRY": "COUNTRY",
+        "DEST_COUNTRY_NAME": "COUNTRY_NAME",
+        "DEST_WAC": "WAC",
+    }
+    # Usamos o resultado do merge anterior para adicionar o id_destino
+    fact_table_merged = pd.merge(
+        fact_table_origin_merged,
+        dim_aeroporto,
+        left_on=list(dest_cols_map.keys()),
+        right_on=list(dest_cols_map.values()),
+        how="left",
+        suffixes=("", "_dest"),
+    ).rename(columns={"id_aeroporto": "id_destino"})
+
+    # Merge com Dim_Distancia
+    fact_table_merged = pd.merge(
+        fact_table_merged, dim_distancia, on="DISTANCE_GROUP", how="left"
+    )
+
+    # Merge com Dim_Classe
+    fact_table_merged = pd.merge(fact_table_merged, dim_classe, on="CLASS", how="left")
+
+    # Selecionando as colunas de fatos e as chaves estrangeiras
+    final_fact_table = fact_table_merged[
+        [
+            "id_tempo",
+            "id_companhia",
+            "id_origem",
+            "id_destino",
+            "id_distancia",
+            "id_classe",
+            "PASSENGERS",
+            "FREIGHT",
+            "MAIL",
+            "DISTANCE",
+        ]
+    ]
+
+    return final_fact_table
