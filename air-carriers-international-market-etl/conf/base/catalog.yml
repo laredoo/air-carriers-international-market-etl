@@ -133,3 +133,8 @@ operator_dimension:
 time_dimension:
   type: pandas.CSVDataset
   filepath: data/02_intermediate/time_dimension.csv
+
+# final
+fact_table:
+  type: pandas.CSVDataset
+  filepath: data/03_final/fact_table.csv
